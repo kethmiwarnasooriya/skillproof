@@ -31,7 +31,7 @@ public class SecurityConfig {
             
             // Define route permissions
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Public access for registration & login
+                .requestMatchers("/api/auth/**", "/error").permitAll() // Public access for registration & login
                 .anyRequest().authenticated()               // Everything else requires a valid token
             );
 
