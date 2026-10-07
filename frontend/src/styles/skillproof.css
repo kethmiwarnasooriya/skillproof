@@ -1,0 +1,48 @@
+/* SkillProof global stylesheet. This is the ONLY css file main.jsx should import. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+
+@layer base {
+  :root { color-scheme: dark }
+  html, body { background-color: #0B0F17 }
+  body { margin: 0; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility }
+}
+@keyframes sp-bgin { from { opacity: 0; transform: scale(1.04) } to { opacity: 1; transform: none } }
+@keyframes sp-fade { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: none } }
+.sp-fade { animation: sp-fade .8s ease-out both }
+</file>
+/* page backgrounds */
+.sp-page { background-color: #0B0F17 }
+.sp-page-home { background-image: radial-gradient(45rem 30rem at 0% 70%, rgba(30,64,175,.18), transparent) }
+.sp-page-scene { background: #0B0F17 url("../assets/skillproof-bg.jpg") right center / cover no-repeat }
+@media (max-width: 1023px) {
+  .sp-page-scene { background-image: linear-gradient(rgba(11,15,23,.6), rgba(11,15,23,.6)), url("../assets/skillproof-bg.jpg") }
+}
+
+/* hero */
+.sp-hero { min-height: 100vh }
+.sp-hero-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(11,15,23,0) 65%, #0B0F17 100%),
+              linear-gradient(to right, rgba(11,15,23,.5), rgba(11,15,23,0) 55%),
+              url("../assets/skillproof-bg.jpg") right center / cover no-repeat;
+  animation: sp-bgin 1.6s ease-out both;
+}
+@media (max-width: 767px) {
+  .sp-hero-bg { background-position: 72% center }
+  .sp-hero-bg::after { content: ""; position: absolute; inset: 0; background: rgba(11,15,23,.55) }
+}
+
+/* misc */
+.sp-h1 { line-height: 1.05 }
+.sp-btn-glow { box-shadow: 0 0 30px rgba(252,211,77,.4) }
+.sp-card { box-shadow: 0 0 80px rgba(251,191,36,.06) }
+.sp-marker { left: -3.05rem; background: #0B0F17; box-shadow: 0 0 20px rgba(252,211,77,.2) }
+.sp-tall { min-height: 22rem }
+.sp-formcol { width: 100% }
+@media (min-width: 1024px) { .sp-formcol { width: 540px } }
+@media (prefers-reduced-motion: reduce) { .sp-hero-bg, .sp-fade { animation: none } }
