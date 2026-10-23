@@ -1,5 +1,5 @@
 import { Button, GlassCard, SectionTitle } from "../components/common";
-import { Footer, Navbar } from "../components/layout";
+import { Navbar } from "../components/layout";
 import { STEPS } from "../constants/content";
 
 const SKILLS = [

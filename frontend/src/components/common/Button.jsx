@@ -6,7 +6,10 @@ const VARIANTS = {
 };
 const SIZES = { sm: "px-5 py-2 text-sm", md: "px-7 py-3" };
 
-/** Renders <a> when `href` is given, otherwise <button>. */
+/**
+ * Renders <a> when `href` is given, otherwise <button>.
+ * @param {{ variant?: "primary" | "outline", size?: "sm" | "md", href?: string, loading?: boolean, loadingText?: import("react").ReactNode, className?: string, children?: import("react").ReactNode, [key: string]: any }} props
+ */
 export default function Button({
   variant = "primary", size = "md", href, loading = false, loadingText, className = "", children, ...props
 }) {

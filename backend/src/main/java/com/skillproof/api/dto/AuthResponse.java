@@ -1,29 +1,22 @@
 package com.skillproof.api.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class AuthResponse {
-    private String message;
+    private String token;
+    @Builder.Default
+    private String type = "Bearer";
+    private Long id;
+    private String fullName;
     private String email;
-
-    public AuthResponse() {
-    }
-
-    public AuthResponse(String message, String email) {
-        this.message = message;
-        this.email = email;
-    }
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    private String role;
 }

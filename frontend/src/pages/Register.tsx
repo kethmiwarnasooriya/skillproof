@@ -1,20 +1,20 @@
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import { isAxiosError } from "axios";
 import { Alert, Field, GlassCard, Logo, PasswordInput, TextInput } from "../components/common";
-// The content constants are currently implemented in JavaScript and have no declaration file.
-// @ts-expect-error JavaScript constants module is untyped.
+
 import { STEPS } from "../constants/content";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INITIAL = { fullName: "", email: "", password: "", confirmPassword: "" };
 
-// The service is currently implemented in JavaScript and has no declaration file.
-// @ts-expect-error JavaScript service module is untyped.
+type FieldName = keyof typeof INITIAL;
+type FieldErrors = Partial<Record<FieldName, string>>;
+
 import { registerUser } from "../services/authService";
 
 function Showcase() {
   return (
     <div className="relative hidden flex-1 flex-col justify-between p-12 lg:flex">
-      <Logo />
       <div className="max-w-md">
         <h1 className="text-5xl font-bold leading-tight tracking-tight text-white">
           Turn certificates into proof you can do the work.
@@ -40,32 +40,34 @@ function Showcase() {
 
 export default function Register() {
   const [formData, setFormData] = useState(INITIAL);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.name as FieldName;
+    const { value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     if (serverError) setServerError("");
   };
 
   /** Props shared by every control: id, name, value, onChange, error. */
-  const bind = (name) => ({ id: name, name, value: formData[name], onChange: handleChange, error: errors[name] });
+  const bind = (name: FieldName) => ({ id: name, name, value: formData[name], onChange: handleChange, error: errors[name] });
 
   const validate = () => {
-    const next = {};
+    const next: FieldErrors = {};
     if (!formData.fullName.trim()) next.fullName = "Enter your full name.";
     if (!EMAIL_RE.test(formData.email)) next.email = "Enter a valid email address.";
     if (formData.password.length < 8) next.password = "Use at least 8 characters.";
+    else if (formData.password.length > 40) next.password = "Use at most 40 characters.";
     if (formData.confirmPassword !== formData.password) next.confirmPassword = "Passwords do not match.";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   console.log("1. Form submission triggered:", formData);
 
@@ -90,7 +92,8 @@ export default function Register() {
     setSuccess(true);
   } catch (err) {
     console.error("5. Network/API Error caught:", err);
-    setServerError(err.response?.data?.message || "Something went wrong. Please try again.");
+    const message = isAxiosError(err) ? err.response?.data?.message : undefined;
+    setServerError(message || "Something went wrong. Please try again.");
   } finally {
     setLoading(false);
   }

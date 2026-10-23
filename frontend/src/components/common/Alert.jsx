@@ -3,6 +3,9 @@ const TONES = {
   success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
 };
 
+/**
+ * @param {{ tone?: "error" | "success", onDismiss?: () => void, className?: string, children?: import("react").ReactNode }} props
+ */
 export default function Alert({ tone = "error", onDismiss, className = "", children }) {
   return (
     <div role={tone === "error" ? "alert" : "status"} className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${TONES[tone]} ${className}`}>
