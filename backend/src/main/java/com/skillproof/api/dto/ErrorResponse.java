@@ -1,13 +1,18 @@
 package com.skillproof.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.time.LocalDateTime;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
     private LocalDateTime timestamp;
     private int status;
     private String error;
     private String message;
     private String path;
+    // Machine-readable reason the frontend can react to, e.g. CERTIFICATE_FETCH_FAILED
+    private String code;
 
     public ErrorResponse() {
     }
@@ -18,6 +23,11 @@ public class ErrorResponse {
         this.error = error;
         this.message = message;
         this.path = path;
+    }
+
+    public ErrorResponse(LocalDateTime timestamp, int status, String error, String message, String path, String code) {
+        this(timestamp, status, error, message, path);
+        this.code = code;
     }
 
     public LocalDateTime getTimestamp() {
@@ -58,5 +68,13 @@ public class ErrorResponse {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }
