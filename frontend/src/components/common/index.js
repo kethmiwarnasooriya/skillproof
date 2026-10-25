@@ -1,10 +1,14 @@
 export { default as Alert } from "./Alert";
+export { default as Avatar } from "./Avatar";
 export { default as Button } from "./Button";
+export { default as Chip } from "./Chip";
 export { default as EyeIcon } from "./EyeIcon";
 export { default as Field } from "./Field";
+export { default as FileDropzone } from "./FileDropzone";
 export { default as GlassCard } from "./GlassCard";
 export { default as Logo } from "./Logo";
 export { default as PasswordInput } from "./PasswordInput";
 export { default as SectionTitle } from "./SectionTitle";
 export { default as Spinner } from "./Spinner";
+export { default as TextArea } from "./TextArea";
 export { default as TextInput } from "./TextInput";

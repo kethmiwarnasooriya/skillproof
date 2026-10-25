@@ -1,13 +1,4 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:8080/api';
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import apiClient from "./apiClient";
 
 export const registerUser = async (userData) => {
   // Matches backend RegisterRequest DTO: fullName, email, password
@@ -17,8 +8,11 @@ export const registerUser = async (userData) => {
     password: userData.password,
   };
 
-  const response = await apiClient.post('/auth/register', payload);
+  const response = await apiClient.post("/auth/register", payload);
   return response.data;
 };
 
-export default apiClient;
+export const loginUser = async ({ email, password }) => {
+  const response = await apiClient.post("/auth/login", { email, password });
+  return response.data;
+};

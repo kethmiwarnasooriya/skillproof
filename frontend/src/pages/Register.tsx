@@ -1,8 +1,10 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { isAxiosError } from "axios";
-import { Alert, Field, GlassCard, Logo, PasswordInput, TextInput } from "../components/common";
-
-import { STEPS } from "../constants/content";
+import { Link, useNavigate } from "react-router-dom";
+import { Alert, Button, Field, PasswordInput, TextInput } from "../components/common";
+import { AuthLayout } from "../components/layout";
+import { useAuth } from "../hooks/useAuth";
+import { getErrorMessage } from "../services/apiClient";
+import { registerUser } from "../services/authService";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INITIAL = { fullName: "", email: "", password: "", confirmPassword: "" };
@@ -10,40 +12,13 @@ const INITIAL = { fullName: "", email: "", password: "", confirmPassword: "" };
 type FieldName = keyof typeof INITIAL;
 type FieldErrors = Partial<Record<FieldName, string>>;
 
-import { registerUser } from "../services/authService";
-
-function Showcase() {
-  return (
-    <div className="relative hidden flex-1 flex-col justify-between p-12 lg:flex">
-      <div className="max-w-md">
-        <h1 className="text-5xl font-bold leading-tight tracking-tight text-white">
-          Turn certificates into proof you can do the work.
-        </h1>
-        <p className="mt-5 max-w-sm text-base leading-relaxed text-slate-400">
-          Create your account to start building a record employers can trust.
-        </p>
-        <ol className="mt-10 space-y-3">
-          {STEPS.map((s, i) => (
-            <GlassCard as="li" key={s.title} className="flex items-start gap-4 rounded-2xl p-4">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-amber-300/15 text-sm font-semibold text-amber-300">{i + 1}</span>
-              <div>
-                <p className="text-sm font-semibold text-slate-100">{s.title}</p>
-                <p className="text-sm text-slate-400">{s.short}</p>
-              </div>
-            </GlassCard>
-          ))}
-        </ol>
-      </div>
-    </div>
-  );
-}
-
 export default function Register() {
   const [formData, setFormData] = useState(INITIAL);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name as FieldName;
@@ -68,76 +43,48 @@ export default function Register() {
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  console.log("1. Form submission triggered:", formData);
+    e.preventDefault();
+    if (!validate()) return;
 
-  const isValid = validate();
-  console.log("2. Validation result:", isValid, errors);
+    setLoading(true);
+    setServerError("");
+    try {
+      const { fullName, email, password } = formData;
+      // Register returns a JWT, so the new user is signed in straight away
+      signIn(await registerUser({ fullName, email, password }));
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      setServerError(getErrorMessage(err as Error));
+      setLoading(false);
+    }
+  };
 
-  if (!isValid) {
-    console.warn("Client-side validation failed!");
-    return;
-  }
-
-  setLoading(true);
-  setServerError("");
-
-  try {
-    const { fullName, email, password } = formData;
-    console.log("3. Sending request to backend via authService...");
-    
-    const response = await registerUser({ fullName, email, password });
-    console.log("4. Backend responded successfully:", response);
-
-    setSuccess(true);
-  } catch (err) {
-    console.error("5. Network/API Error caught:", err);
-    const message = isAxiosError(err) ? err.response?.data?.message : undefined;
-    setServerError(message || "Something went wrong. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
   return (
-    <div className="sp-page sp-page-scene flex min-h-screen font-sans text-slate-100">
-      <Showcase />
-      <main className="sp-formcol flex items-center justify-center px-5 py-10 lg:shrink-0 lg:px-10">
-        <GlassCard className="sp-card w-full max-w-md rounded-3xl p-8">
-          <Logo size="sm" className="mb-6 lg:hidden" />
-          <h2 className="text-2xl font-bold tracking-tight text-white">Create your account</h2>
-          <p className="mt-1.5 text-sm text-slate-400">It takes less than a minute.</p>
+    <AuthLayout
+      title="Create your account"
+      subtitle="It takes less than a minute."
+      footer={<>Already have an account?{" "}
+        <Link to="/login" className="font-medium text-amber-300 hover:text-amber-200 hover:underline">Sign in</Link></>}
+    >
+      {serverError && <Alert className="mt-6" onDismiss={() => setServerError("")}>{serverError}</Alert>}
 
-          {serverError && <Alert className="mt-6" onDismiss={() => setServerError("")}>{serverError}</Alert>}
-          {success && <Alert tone="success" className="mt-6">Account created. You can now sign in.</Alert>}
-
-          <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-4">
-            <Field id="fullName" label="Full name" error={errors.fullName}>
-              <TextInput {...bind("fullName")} type="text" autoComplete="name" placeholder="John Doe" />
-            </Field>
-            <Field id="email" label="Email address" error={errors.email}>
-              <TextInput {...bind("email")} type="email" autoComplete="email" placeholder="you@example.com" />
-            </Field>
-            <Field id="password" label="Password" error={errors.password}>
-              <PasswordInput {...bind("password")} autoComplete="new-password" placeholder="At least 8 characters" />
-            </Field>
-            <Field id="confirmPassword" label="Confirm password" error={errors.confirmPassword}>
-              <PasswordInput {...bind("confirmPassword")} autoComplete="new-password" placeholder="Re-enter your password" />
-            </Field>
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-amber-300 px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-amber-200 disabled:opacity-50"
-            >
-              {loading ? "Creating account..." : "Create account"}
-            </button>
-          </form>
-
-          <p className="mt-6 text-center text-sm text-slate-400">
-            Already have an account?{" "}
-            <a href="/login" className="font-medium text-amber-300 hover:text-amber-200 hover:underline">Sign In</a>
-          </p>
-        </GlassCard>
-      </main>
-    </div>
+      <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-4">
+        <Field id="fullName" label="Full name" error={errors.fullName}>
+          <TextInput {...bind("fullName")} type="text" autoComplete="name" placeholder="John Doe" />
+        </Field>
+        <Field id="email" label="Email address" error={errors.email}>
+          <TextInput {...bind("email")} type="email" autoComplete="email" placeholder="you@example.com" />
+        </Field>
+        <Field id="password" label="Password" error={errors.password}>
+          <PasswordInput {...bind("password")} autoComplete="new-password" placeholder="At least 8 characters" />
+        </Field>
+        <Field id="confirmPassword" label="Confirm password" error={errors.confirmPassword}>
+          <PasswordInput {...bind("confirmPassword")} autoComplete="new-password" placeholder="Re-enter your password" />
+        </Field>
+        <Button type="submit" loading={loading} loadingText="Creating account..." className="mt-2 w-full text-sm">
+          Create account
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }

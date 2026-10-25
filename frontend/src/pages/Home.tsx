@@ -1,5 +1,4 @@
 import { Button, GlassCard, SectionTitle } from "../components/common";
-import { Navbar } from "../components/layout";
 import { STEPS } from "../constants/content";
 
 const SKILLS = [
@@ -105,7 +104,6 @@ function CTA() {
 export default function Home() {
   return (
     <div className="sp-page sp-page-home min-h-screen font-sans text-slate-100">
-      <Navbar />
       <main>
         <Hero />
         <HowItWorks />
